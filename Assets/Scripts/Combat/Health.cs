@@ -40,6 +40,19 @@ public class Health : MonoBehaviour
         _currentHealth = MaxHealth;
     }
 
+    private void OnValidate()
+    {
+        // Inspector에서 값을 변경할 때도 이벤트 발생 (에디터 전용)
+        if (Application.isPlaying)
+        {
+            // 체력 범위 제한
+            _currentHealth = Mathf.Clamp(_currentHealth, 0, MaxHealth);
+
+            // UI 업데이트를 위한 이벤트 발생
+            OnHealthChanged?.Invoke(_currentHealth, MaxHealth);
+        }
+    }
+
     private void Start()
     {
         // PlayerStats 변경 이벤트 구독 (플레이어용)
@@ -47,6 +60,9 @@ public class Health : MonoBehaviour
         {
             PlayerStats.Instance.OnStatsRecalculated += OnStatsRecalculated;
         }
+
+        // 초기 체력 이벤트 발생 (UI 초기화용)
+        OnHealthChanged?.Invoke(_currentHealth, MaxHealth);
     }
 
     private void OnDestroy()
