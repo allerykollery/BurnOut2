@@ -65,7 +65,22 @@ public class PlayerController : MonoBehaviour
         // 모든 트리거 초기화 (의도치 않은 애니메이션 방지)
         ResetAllAnimatorTriggers();
 
+        // ExecutionSystem에 플레이어 애니메이터 전달
+        SetupExecutionSystem();
+
         Debug.Log("PlayerController initialized");
+    }
+
+    /// <summary>
+    /// ExecutionSystem에 플레이어 애니메이터 설정
+    /// </summary>
+    private void SetupExecutionSystem()
+    {
+        if (_animator != null && ExecutionSystem.Instance != null)
+        {
+            ExecutionSystem.Instance.SetPlayerAnimator(_animator);
+            Debug.Log("[Player] ExecutionSystem animator set up");
+        }
     }
 
     /// <summary>

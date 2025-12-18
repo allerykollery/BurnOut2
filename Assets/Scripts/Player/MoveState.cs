@@ -28,6 +28,18 @@ public class MoveState : PlayerState
 
     public override void CheckTransitions()
     {
+        // 처형 입력 체크 (E키 프레스, 그로기 적이 범위 내에 있을 때)
+        if (InputManager.Instance.InteractPressed)
+        {
+            if (ExecutionSystem.Instance != null &&
+                ExecutionSystem.Instance.TryExecute(_controller.transform.position))
+            {
+                InputManager.Instance.ConsumeInteractInput();
+                // 처형 상태로 전환 (ExecutionSystem이 처리)
+                return;
+            }
+        }
+
         // 점프 입력 체크 (바닥에 있을 때만)
         if (InputManager.Instance.JumpPressed && _controller.IsGrounded)
         {

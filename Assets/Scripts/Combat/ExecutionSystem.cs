@@ -11,6 +11,7 @@ public class ExecutionSystem : MonoBehaviour
     [Header("처형 설정")]
     [SerializeField] private float _executionRange = 2f;      // 처형 가능 범위
     [SerializeField] private float _executionDuration = 1f;   // 처형 애니메이션 시간
+    [SerializeField] private float _executionDamage = 50f;    // 처형 피해량
     [SerializeField] private LayerMask _enemyLayer;
 
     // 플레이어 애니메이터 참조
@@ -118,8 +119,26 @@ public class ExecutionSystem : MonoBehaviour
         Debug.Log($"Execution started on {target.gameObject.name}!");
         OnExecutionStart?.Invoke(target);
 
+        // 플레이어 애니메이터가 없으면 찾기
+        if (_playerAnimator == null)
+        {
+            var player = FindObjectOfType<PlayerController>();
+            if (player != null)
+            {
+                _playerAnimator = player.Animator;
+            }
+        }
+
         // 처형 애니메이션 트리거
-        _playerAnimator?.SetTrigger("ExecutionTrigger");
+        if (_playerAnimator != null)
+        {
+            _playerAnimator.SetTrigger("ExecutionTrigger");
+            Debug.Log("ExecutionTrigger activated!");
+        }
+        else
+        {
+            Debug.LogWarning("Player animator not found for execution!");
+        }
 
         // 플레이어 이동 잠금
         if (_playerMovement == null)
@@ -152,19 +171,24 @@ public class ExecutionSystem : MonoBehaviour
     {
         if (_executionTarget != null)
         {
-            // 그로기 상태에서 처형 처리
-            var groggyState = _executionTarget.StateMachine.CurrentState as EnemyGroggyState;
-            if (groggyState != null)
+            // 처형 피해량 계산 (PlayerStats 보너스 적용)
+            float finalDamage = _executionDamage;
+            if (PlayerStats.Instance != null)
             {
-                groggyState.OnExecuted();
-            }
-            else
-            {
-                // 그로기 상태가 아니면 직접 즉사 처리
-                _executionTarget.Health.TakeDamage(float.MaxValue);
+                // ExecutionDamage 스탯 보너스 추가
+                finalDamage += PlayerStats.Instance.GetStat(StatType.ExecutionDamage);
             }
 
-            Debug.Log($"Execution completed on {_executionTarget.gameObject.name}!");
+            // 높은 피해량 적용
+            _executionTarget.Health.TakeDamage(finalDamage);
+
+            // 그로기 상태 종료 처리
+            _executionTarget.Durability?.OnExecute();
+
+            // 적 고정 해제
+            _executionTarget.UnfreezeFromExecution();
+
+            Debug.Log($"Execution completed on {_executionTarget.gameObject.name}! Damage: {finalDamage}");
             OnExecutionComplete?.Invoke(_executionTarget);
         }
 

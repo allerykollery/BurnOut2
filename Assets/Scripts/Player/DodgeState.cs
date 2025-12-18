@@ -79,6 +79,10 @@ public class DodgeState : PlayerState
         // 이동 잠금
         _movement.LockMovement();
 
+        // 즉시 velocity 설정 (첫 프레임 방향 오류 방지)
+        float speed = DodgeDistance / _dodgeDuration;
+        _rb.linearVelocity = _dodgeDirection * speed;
+
         // 닷지 입력 소비
         InputManager.Instance.ConsumeDodgeInput();
 

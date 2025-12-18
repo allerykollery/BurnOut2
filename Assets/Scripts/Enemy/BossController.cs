@@ -192,12 +192,6 @@ public class BossController : EnemyController
 
         List<int> availableAttacks = new List<int>(currentPhase.availableAttacks);
 
-        // 같은 공격 연속 방지 (선택사항)
-        if (availableAttacks.Count > 1 && _lastAttackIndex >= 0)
-        {
-            availableAttacks.Remove(_lastAttackIndex);
-        }
-
         int selectedAttack = availableAttacks[Random.Range(0, availableAttacks.Count)];
         _lastAttackIndex = selectedAttack;
 

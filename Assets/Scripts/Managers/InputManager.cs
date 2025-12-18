@@ -17,7 +17,8 @@ public class InputManager : MonoBehaviour
     public bool HeavyAttackPressed { get; private set; }   // 우클릭 강공격
     public bool SpecialAttackPressed { get; private set; } // Q키 특수공격
     public bool DodgePressed { get; private set; }  // Shift로 Dodge
-    public bool GuardHeld { get; private set; }     // E키로 Guard
+    public bool GuardHeld { get; private set; }     // E키로 Guard (홀드)
+    public bool InteractPressed { get; private set; }  // E키로 Interact (단일 프레스 - 처형용)
     public bool JumpPressed { get; private set; }   // Space로 Jump
 
     private void Awake()
@@ -46,6 +47,7 @@ public class InputManager : MonoBehaviour
         _inputActions.Player.SpecialAttack.performed += OnSpecialAttackPerformed;
         _inputActions.Player.Jump.performed += OnJumpPerformed;
         _inputActions.Player.Sprint.performed += OnDodgePerformed;
+        _inputActions.Player.Guard.performed += OnInteractPerformed;
     }
 
     private void OnDisable()
@@ -55,6 +57,7 @@ public class InputManager : MonoBehaviour
         _inputActions.Player.SpecialAttack.performed -= OnSpecialAttackPerformed;
         _inputActions.Player.Jump.performed -= OnJumpPerformed;
         _inputActions.Player.Sprint.performed -= OnDodgePerformed;
+        _inputActions.Player.Guard.performed -= OnInteractPerformed;
 
         _inputActions.Disable();
     }
@@ -79,6 +82,8 @@ public class InputManager : MonoBehaviour
             JumpPressed = false;
         if (DodgePressed)
             DodgePressed = false;
+        if (InteractPressed)
+            InteractPressed = false;
     }
 
     private void OnAttackPerformed(InputAction.CallbackContext context)
@@ -106,6 +111,11 @@ public class InputManager : MonoBehaviour
         DodgePressed = true;
     }
 
+    private void OnInteractPerformed(InputAction.CallbackContext context)
+    {
+        InteractPressed = true;
+    }
+
     // 외부에서 버튼 입력 소비 (사용됨을 표시)
     public void ConsumeAttackInput()
     {
@@ -130,5 +140,10 @@ public class InputManager : MonoBehaviour
     public void ConsumeDodgeInput()
     {
         DodgePressed = false;
+    }
+
+    public void ConsumeInteractInput()
+    {
+        InteractPressed = false;
     }
 }
